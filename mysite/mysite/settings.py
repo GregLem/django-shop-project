@@ -50,6 +50,19 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # ==========================================================
+    # Наши Middleware
+    # ==========================================================
+
+    # Добавляет User-Agent в request
+    'requestdattapp.middlewares.set_useragent_on_request_middleware',
+
+    # Считает количество запросов
+    'requestdattapp.middlewares.CountRequestsMiddleware',
+
+    # Ограничивает слишком частые запросы (Throttling)
+    'requestdattapp.middlewares.ThrottlingMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'

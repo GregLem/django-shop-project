@@ -17,10 +17,30 @@ def process_get_view(request: HttpRequest) -> HttpResponse:
 def user_form(request: HttpRequest) -> HttpResponse:
     return render(request, 'requestdattapp/user-bio-form.html')
 
-def handle_file_upload(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST" and request.FILES.get("myfile"):
-        myfile = request.FILES["myfile"]
-        fs = FileSystemStorage()
-        filename = fs.save(myfile.name, myfile)
-        print("saved file", filename)
-    return render(request, 'requestdattapp/file-upload.html')              
+def handle_file_upload(request: HttpRequest):
+
+    if request.method == "POST":
+
+        myfile = request.FILES.get("myfile")
+
+        if myfile:
+
+            if myfile.size > 1024 * 1024:
+
+                return HttpResponse(
+                    "File size must be less than 1 MB",
+                    status=400,
+                )
+
+            fs = FileSystemStorage()
+
+            filename = fs.save(myfile.name, myfile)
+
+            return HttpResponse(
+                f"File {filename} uploaded successfully!"
+            )
+
+    return render(
+        request,
+        "requestdattapp/file-upload.html",
+    )              
