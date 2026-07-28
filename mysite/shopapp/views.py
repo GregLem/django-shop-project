@@ -1,8 +1,9 @@
 from timeit import default_timer
 from django.contrib.auth.models import Group
-from django.shortcuts import render
-from django.http import HttpRequest
+from django.shortcuts import render, redirect, reverse
+from django.http import HttpRequest, HttpResponse
 
+from .forms import ProductForm
 from .models import Product, Order
 
 # Create your views here.
@@ -35,6 +36,23 @@ def products_list(request: HttpRequest):
         "products": Product.objects.all(),
     }
     return render(request, 'shopapp/products-list.html', context=context)
+
+def create_product(request: HttpRequest) -> HttpResponse:
+
+    if request.method == "POST":
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            Product.objects.create(**form.cleaned_data)
+            url = reverse("shopapp:products-list")
+            return redirect(url)
+    else:
+        form = ProductForm()
+
+    context = {
+        "form": form,
+    }
+
+    return render(request, "shopapp/create-product.html", context)
 
 def orders_list(request: HttpRequest):
     context = {

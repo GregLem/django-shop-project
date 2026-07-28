@@ -1,6 +1,7 @@
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse
+from .forms import UserBioForm
 
 
 def process_get_view(request: HttpRequest) -> HttpResponse:
@@ -15,7 +16,10 @@ def process_get_view(request: HttpRequest) -> HttpResponse:
     return render(request,'requestdattapp/request-query-params.html', context=context)
 
 def user_form(request: HttpRequest) -> HttpResponse:
-    return render(request, 'requestdattapp/user-bio-form.html')
+    context = {
+        "form": UserBioForm(),
+    }
+    return render(request, 'requestdattapp/user-bio-form.html',context=context)
 
 def handle_file_upload(request: HttpRequest):
 
