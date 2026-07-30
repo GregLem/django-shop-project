@@ -1,41 +1,59 @@
 from timeit import default_timer
 from django.contrib.auth.models import Group
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http import HttpRequest, HttpResponse
-
-from .forms import ProductForm
+from django.views import View
+from django.views.generic import TemplateView
+from .forms import ProductForm, GroupForm
 from .models import Product, Order
 
-# Create your views here.
-def shop_index(request: HttpRequest):
-    # print(request.path)
-    # print(request.method)
-    # print(request.headers)
-    # return HttpResponse('<h1>Hello World')
-    products = [
-        ('laptop', 1999),
-        ('desktop', 2999),
-        ('laptop', 1999),
-        ('smartpone',999),
 
-    ]
-    context = {
-        'time_running': default_timer(),
-        'products':products,
-    }
-    return render(request,'shopapp/shop-index.html',context=context)
+class ShopIndexView(View):
+    def get(self, request: HttpRequest) -> HttpResponse:
+        products = [
+            ('laptop', 1999),
+            ('desktop', 2999),
+            ('laptop', 1999),
+            ('smartpone',999),
 
-def groups_list(request: HttpRequest):
-    context = {
-        "groups": Group.objects.prefetch_related('permissions').all(),
-    }
-    return render(request, 'shopapp/groups_list.html', context=context)
+        ]
+        context = {
+            'time_running': default_timer(),
+            'products':products,
+        }
+        return render(request,'shopapp/shop-index.html',context=context)
 
-def products_list(request: HttpRequest):
-    context = {
-        "products": Product.objects.all(),
-    }
-    return render(request, 'shopapp/products-list.html', context=context)
+class GroupListView(View):
+    def get(self, request: HttpRequest) -> HttpResponse:
+        context = {
+            "form": GroupForm(),
+            "groups": Group.objects.prefetch_related('permissions').all(),
+        }
+        return render(request, 'shopapp/groups_list.html', context=context)
+    def post(self, request: HttpRequest) -> HttpResponse:
+        form = GroupForm(request.POST)
+        if form.is_valid():
+            form.save()
+           
+        return redirect(request.path)
+
+class ProductDetailView(View):
+    def get(self, request: HttpRequest, product_id: int) -> HttpResponse:
+        product = get_object_or_404(Product, pk=product_id)
+        context = {
+            "product": product,
+        }
+        return render(request, 'shopapp/product-details.html', context=context)
+
+class ProductListView(TemplateView):
+    template_name = "shopapp/products-list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["products"] = Product.objects.all()
+        return context
+
+
 
 def create_product(request: HttpRequest) -> HttpResponse:
 
