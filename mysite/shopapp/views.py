@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http import HttpRequest, HttpResponse
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView, DetailView
 from .forms import ProductForm, GroupForm
 from .models import Product, Order
 
@@ -37,22 +37,15 @@ class GroupListView(View):
            
         return redirect(request.path)
 
-class ProductDetailView(View):
-    def get(self, request: HttpRequest, product_id: int) -> HttpResponse:
-        product = get_object_or_404(Product, pk=product_id)
-        context = {
-            "product": product,
-        }
-        return render(request, 'shopapp/product-details.html', context=context)
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = "shopapp/product-details.html"
+    context_object_name = "product"
 
-class ProductListView(TemplateView):
+class ProductListView(ListView):
+    model = Product
     template_name = "shopapp/products-list.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["products"] = Product.objects.all()
-        return context
-
+    context_object_name = "products"
 
 
 def create_product(request: HttpRequest) -> HttpResponse:
@@ -62,7 +55,7 @@ def create_product(request: HttpRequest) -> HttpResponse:
         if form.is_valid():
             #Product.objects.create(**form.cleaned_data)
             form.save()
-            url = reverse("shopapp:products-list") 
+            url = reverse("shopapp:products_list") 
             return redirect(url)
     else:
         form = ProductForm()
@@ -73,8 +66,22 @@ def create_product(request: HttpRequest) -> HttpResponse:
 
     return render(request, "shopapp/create-product.html", context)
 
-def orders_list(request: HttpRequest):
-    context = {
-        "orders" : Order.objects.select_related('user').prefetch_related("products").all()
-    }
-    return render(request, "shopapp/orders_list.html", context=context)
+class OrderListView(ListView):
+    queryset = Order.objects.select_related(
+        "user"
+    ).prefetch_related("products")
+
+    template_name = "shopapp/orders_list.html"
+    context_object_name = "orders"
+
+class OrderDetailView(DetailView):
+    model = Order
+    template_name = "shopapp/order-details.html"
+    context_object_name = "order"
+
+    def get_queryset(self):
+        return (
+            Order.objects
+            .select_related("user")
+            .prefetch_related("products")
+        )

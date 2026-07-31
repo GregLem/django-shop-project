@@ -10,9 +10,11 @@
         <div>
             {% for order in orders %}
                 <div>
+                    <p><a href="{% url 'shopapp:order_details' order.pk %}">View Details №{{order.pk}}</a></p>
                     <p>Order by {% firstof order.user.first_name order.user.username  %}</p>
                     <p>Promocode: <code>{{order.promocode}}</code></p>
                     <p>Delivery addres: {{order.delivery_address}}</p>
+                </div>
                 <div>
                     Product in Order
                 
