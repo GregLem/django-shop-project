@@ -19,4 +19,14 @@
             Back to Products List
         </a>
     </div>
+    <div>
+        <a href="{% url 'shopapp:product_delete' product.pk %}">
+            Arhive Product
+        </a>
+    </div>
+    <div>
+        <a href="{% url 'shopapp:product_update' product.pk %}">
+            Update Product
+        </a>
+    </div>
 {% endblock  %}

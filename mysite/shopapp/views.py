@@ -1,9 +1,10 @@
 from timeit import default_timer
 from django.contrib.auth.models import Group
+from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from .forms import ProductForm, GroupForm
 from .models import Product, Order
 
@@ -43,9 +44,10 @@ class ProductDetailView(DetailView):
     context_object_name = "product"
 
 class ProductListView(ListView):
-    model = Product
+    # model = Product
     template_name = "shopapp/products-list.html"
     context_object_name = "products"
+    queryset = Product.objects.filter(archived=False)
 
 
 def create_product(request: HttpRequest) -> HttpResponse:
@@ -65,6 +67,39 @@ def create_product(request: HttpRequest) -> HttpResponse:
     }
 
     return render(request, "shopapp/create-product.html", context)
+
+class ProductCreateView(CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = "shopapp/create-product.html"
+    success_url = reverse_lazy("shopapp:products_list")
+
+class ProductUpdateView(UpdateView):
+    # model = Product
+    # fields = ("name", "price", "description")
+    # template_name = "shopapp/product_update_form.html"
+    model = Product
+    fields = ("name", "price", "description")
+    template_name_suffix = "_update_form"  # → ищет product_update_form.html
+
+    def get_success_url(self):
+        return reverse("shopapp:product_details", kwargs={"pk": self.object.pk})
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = "shopapp/product_confirm_delete.html"
+    success_url = reverse_lazy("shopapp:products_list")
+
+    def form_valid(self, form):
+        success_url = self.get_success_url()
+        self.object.archived = True
+        self.object.save()
+        return HttpResponseRedirect(success_url)
+
+
+        
+    
+
 
 class OrderListView(ListView):
     queryset = Order.objects.select_related(
