@@ -120,3 +120,22 @@ class OrderDetailView(DetailView):
             .select_related("user")
             .prefetch_related("products")
         )
+class OrderCreateView(CreateView):
+    model = Order
+    fields = ("delivery_address", "promocode", "user", "products")
+    template_name = "shopapp/order_create.html"
+    success_url = reverse_lazy("shopapp:order_list")
+
+
+class OrderUpdateView(UpdateView):
+    model = Order
+    fields = ("delivery_address", "promocode", "user", "products")
+    template_name = "shopapp/order_update.html"
+
+    def get_success_url(self):
+        return reverse("shopapp:order_details", kwargs={"pk": self.object.pk})
+
+class OrderDeleteView(DeleteView):
+    model = Order
+    template_name = "shopapp/order_confirm_delete.html"
+    success_url = reverse_lazy("shopapp:order_list")
