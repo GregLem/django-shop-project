@@ -97,9 +97,6 @@ class ProductDeleteView(DeleteView):
         return HttpResponseRedirect(success_url)
 
 
-        
-    
-
 
 class OrderListView(ListView):
     queryset = Order.objects.select_related(
