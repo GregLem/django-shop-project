@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -140,4 +141,20 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = '/admin/'
+
+# #LOGIN_REDIRECT_URL = reverse_lazy("myaut:about-me")
+
+# LOGIN_REDIRECT_URL = "myaut:about-me"
+
+# ==========================================================
+# AUTHENTICATION
+# ==========================================================
+
+# Куда отправлять неавторизованного пользователя
+LOGIN_URL = "myaut:login"
+
+# Куда отправлять после успешного входа
+LOGIN_REDIRECT_URL = "myaut:about-me"
+
+# Куда отправлять после выхода
+LOGOUT_REDIRECT_URL = "myaut:login"

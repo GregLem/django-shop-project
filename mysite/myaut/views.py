@@ -3,6 +3,29 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.views import LogoutView
+from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView, ListView, DetailView
+from django.contrib.auth.forms import UserCreationForm 
+from django.contrib.auth.models import User
+
+
+class AboutMeView(TemplateView):
+    template_name = "myaut/about-me.html"
+
+class RegisterView(CreateView):
+    # model = User
+    form_class = UserCreationForm
+    template_name = "myaut/register.html"
+    success_url = reverse_lazy("myaut:about-me")
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        username = form.cleaned_data.get("username")
+        password = form.cleaned_data.get("password1")
+        user = authenticate(self.request,
+                            username=username,
+                            password=password,)
+        login(self.request, user)
+        return response   
 
 def login_view(request: HttpRequest) -> HttpResponse:
     if request.method == "GET":

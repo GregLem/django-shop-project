@@ -1,0 +1,35 @@
+{% extends "myaut/base.html" %}
+
+{% block title %}
+    About Me
+{% endblock %}
+
+{% block body %}
+
+    <h1>User info</h1>
+
+    {% if user.is_authenticated %}
+
+        <h2>Detail</h2>
+
+        <p>Username: {{ user.username }}</p>
+        <p>First Name: {{ user.first_name }}</p>
+        <p>Last Name: {{ user.last_name }}</p>
+        <p>Email: {{ user.email }}</p>
+
+        <form method="post" action="{% url 'myaut:logout' %}">
+            {% csrf_token %}
+            <button type="submit">Выйти</button>
+        </form>
+
+    {% else %}
+
+        <h2>User is Anonymous</h2>
+
+        <a href="{% url 'myaut:login' %}">
+            Войти
+        </a>
+
+    {% endif %}
+
+{% endblock %}
