@@ -7,6 +7,8 @@ from django.views.generic import TemplateView, CreateView, UpdateView, DeleteVie
 from django.contrib.auth.forms import UserCreationForm 
 from django.contrib.auth.models import User
 
+from .models import Profile
+
 
 class AboutMeView(TemplateView):
     template_name = "myaut/about-me.html"
@@ -19,12 +21,15 @@ class RegisterView(CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        user = self.object
+        Profile.objects.create(user=user)
         username = form.cleaned_data.get("username")
         password = form.cleaned_data.get("password1")
         user = authenticate(self.request,
                             username=username,
                             password=password,)
-        login(self.request, user)
+        login(request=self.request, user=user)
+        
         return response   
 
 def login_view(request: HttpRequest) -> HttpResponse:

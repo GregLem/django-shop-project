@@ -16,6 +16,7 @@
         <p>First Name: {{ user.first_name }}</p>
         <p>Last Name: {{ user.last_name }}</p>
         <p>Email: {{ user.email }}</p>
+        <p>Bio: {{ user.profile.bio }}</p>
 
         <form method="post" action="{% url 'myaut:logout' %}">
             {% csrf_token %}
