@@ -7,6 +7,7 @@ from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from .forms import ProductForm, GroupForm
 from .models import Product, Order
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 
 
 class ShopIndexView(View):
@@ -68,11 +69,28 @@ def create_product(request: HttpRequest) -> HttpResponse:
 
     return render(request, "shopapp/create-product.html", context)
 
-class ProductCreateView(CreateView):
+# class ProductCreateView(UserPassesTestMixin,CreateView):
+#     def test_func(self):
+#         return self.request.user.groups.filter(name="secret_group").exists()
+#     model = Product
+#     form_class = ProductForm
+#     template_name = "shopapp/create-product.html"
+#     success_url = reverse_lazy("shopapp:products_list")
+
+# shopapp/views.py
+
+class ProductCreateView(UserPassesTestMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = "shopapp/create-product.html"
     success_url = reverse_lazy("shopapp:products_list")
+
+    def test_func(self):
+        return self.request.user.has_perm("shopapp.add_product")
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
 
 class ProductUpdateView(UpdateView):
     # model = Product
@@ -81,6 +99,14 @@ class ProductUpdateView(UpdateView):
     model = Product
     fields = ("name", "price", "description")
     template_name_suffix = "_update_form"  # → ищет product_update_form.html
+
+    def test_func(self):
+        product = self.get_object()
+        user = self.request.user
+        return user.is_superuser or (
+            user.has_perm("shopapp.change_product") and
+            product.created_by == user
+        )
 
     def get_success_url(self):
         return reverse("shopapp:product_details", kwargs={"pk": self.object.pk})
@@ -98,7 +124,7 @@ class ProductDeleteView(DeleteView):
 
 
 
-class OrderListView(ListView):
+class OrderListView(LoginRequiredMixin, ListView):
     queryset = Order.objects.select_related(
         "user"
     ).prefetch_related("products")
@@ -132,7 +158,8 @@ class OrderUpdateView(UpdateView):
     def get_success_url(self):
         return reverse("shopapp:order_details", kwargs={"pk": self.object.pk})
 
-class OrderDeleteView(DeleteView):
+class OrderDeleteView(PermissionRequiredMixin,DeleteView):
+    permission_required = "shopapp.view_order"
     model = Order
     template_name = "shopapp/order_confirm_delete.html"
     success_url = reverse_lazy("shopapp:order_list")

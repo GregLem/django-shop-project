@@ -6,6 +6,7 @@ from django.contrib.auth.views import LogoutView
 from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView, ListView, DetailView
 from django.contrib.auth.forms import UserCreationForm 
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 
 from .models import Profile
 
@@ -53,7 +54,12 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 class MyLogoutView(LogoutView):
     next_page = reverse_lazy("myaut:login")
 
+@user_passes_test(lambda u: u.is_superuser)
 def set_cookie_view(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        response = HttpResponse("Cookie has been set.")
+        response.set_cookie("fizz", "buzz", max_age=3600)  # Cookie expires in 1 hour   
+        return response
     response = HttpResponse("Cookie has been set.")
     response.set_cookie("fizz", "buzz", max_age=3600)  # Cookie expires in 1 hour   
     return response
@@ -62,10 +68,12 @@ def get_cookie_view(request: HttpRequest) -> HttpResponse:
     value = request.COOKIES.get("fizz", "Default Value")
     return HttpResponse(f"Cookie value: {value}")
 
+@permission_required("myaut.view_profile", raise_exception=True)
 def set_session_view(request: HttpRequest) -> HttpResponse:
     request.session["foobar"] = "spameggs"
     return HttpResponse("Session value has been set.")
 
+@login_required
 def get_session_view(request: HttpRequest) -> HttpResponse:
     value = request.session.get("foobar", "Default Value")
     return HttpResponse(f"Session value: {value}")
