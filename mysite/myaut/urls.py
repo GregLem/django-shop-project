@@ -8,7 +8,8 @@ from . views import (set_cookie_view,
                     logout_view,
                     MyLogoutView,
                     AboutMeView,
-                    RegisterView)
+                    RegisterView,
+                    FooBarView)
 
 app_name = "myaut"
 
@@ -27,4 +28,5 @@ urlpatterns = [
     #path("logout/", logout_view, name="logout"),
     path("logout/", MyLogoutView.as_view(), name="logout"),
     path("about-me/", AboutMeView.as_view(), name="about-me"),
+    path("foo-bar/", FooBarView.as_view(), name="foo-bar"),
 ]
