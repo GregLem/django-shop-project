@@ -132,10 +132,11 @@ class OrderListView(LoginRequiredMixin, ListView):
     template_name = "shopapp/orders_list.html"
     context_object_name = "orders"
 
-class OrderDetailView(DetailView):
+class OrderDetailView(PermissionRequiredMixin,DetailView):
     model = Order
     template_name = "shopapp/order-details.html"
     context_object_name = "order"
+    permission_required = "shopapp.view_order"
 
     def get_queryset(self):
         return (
@@ -163,3 +164,4 @@ class OrderDeleteView(PermissionRequiredMixin,DeleteView):
     model = Order
     template_name = "shopapp/order_confirm_delete.html"
     success_url = reverse_lazy("shopapp:order_list")
+    

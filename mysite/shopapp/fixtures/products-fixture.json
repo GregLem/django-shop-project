@@ -1,0 +1,1 @@
+[{"model": "shopapp.product", "pk": 1, "fields": {"name": "Desktop", "description": "!!!!!!!", "price": "4000.00", "discount": 10, "created_at": "2026-08-19T10:15:59.284Z", "archived": false, "created_by": null}}]

@@ -1,6 +1,7 @@
 # shopapp/tests.py
 
 from django.test import TestCase
+from django.conf import settings
 from django.urls import reverse
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -105,3 +106,51 @@ class ProductDetailsViewTestCase(TestCase):
             reverse("shopapp:product_details", kwargs={"pk": invalid_pk})
         )
         self.assertEqual(response.status_code, 404)
+
+class ProductsListViewTestCase(TestCase):
+    fixtures = ['products-fixture.json']  # Загружаем фикстуры
+
+    def test_products(self):
+        """Тест: страница списка продуктов открывается и содержит продукты из фикстуры"""
+        response = self.client.get(reverse("shopapp:products_list"))
+        self.assertQuerySetEqual(
+          qs=Product.objects.filter(archived=False).all(),
+          values=(p.pk for p in response.context['products']),  
+          transform=lambda p: p.pk,  
+        )
+        self.assertTemplateUsed(response, 'shopapp/products-list.html')
+
+class OrdersListViewTestCase(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.user = User.objects.create_user(username="Bob_test", password="qwerty")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.user.delete()
+
+    def setUp(self) -> None:
+        self.client.force_login(self.user)
+
+    
+
+    def test_orders_view(self):
+        url = reverse("shopapp:order_list")
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Orders")
+
+    # def test_orders_view_not_authenticated(self):
+    #     self.client.logout()
+    #     response = self.client.get(reverse("shopapp:order_list"))
+    #     self.assertIn(str(settings.LOGIN_URL), response.url)
+    #     self.assertEqual(response.status_code,302)
+
+    def test_orders_view_not_authenticated(self):
+        self.client.logout()
+        response = self.client.get(reverse("shopapp:order_list"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('login', response.url)  # Проверяем, что в URL есть login
+        self.assertIn(reverse('shopapp:order_list'), response.url)  # Проверяем next
