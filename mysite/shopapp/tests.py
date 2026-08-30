@@ -5,7 +5,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
-from .models import Product
+from .models import Product, Order
 
 class ProductCreateTestCase(TestCase):
     def setUp(self):
@@ -154,3 +154,72 @@ class OrdersListViewTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn('login', response.url)  # Проверяем, что в URL есть login
         self.assertIn(reverse('shopapp:order_list'), response.url)  # Проверяем next
+
+class ProductsExportViewTestCase(TestCase):
+    fixtures = ["products-fixture.json",
+
+                ]
+    def test_get_products_view(self):
+        response = self.client.get(
+            reverse("shopapp:products-export"),
+
+        )
+        self.assertEqual(response.status_code, 200)
+        products = Product.objects.order_by("pk").all()
+        expected_data = [
+            {"pk":product.pk, "name":product.name, "price":str(product.price), "archived":product.archived,}
+            for product in products
+        ]
+
+        products_data = response.json()
+        self.assertEqual(
+                products_data["products"],
+                expected_data
+            
+        )
+
+
+class OrderDetailViewTestCase(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(
+            username='testuser',
+            password='testpass123',
+            is_staff=True  # или дать права через permission
+        )
+        # Даём право view_order
+        content_type = ContentType.objects.get_for_model(Order)
+        permission = Permission.objects.get(
+            codename='view_order',
+            content_type=content_type
+        )
+        cls.user.user_permissions.add(permission)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.user.delete()
+        super().tearDownClass()
+
+    def setUp(self):
+        self.client.force_login(self.user)
+        # Создаём заказ
+        self.order = Order.objects.create(
+            user=self.user,
+            delivery_address='Test Address 123',
+            promocode='TEST123'
+        )
+
+    def tearDown(self):
+        self.order.delete()
+
+    def test_order_details(self):
+        response = self.client.get(
+            reverse('shopapp:order_details', kwargs={'pk': self.order.pk})
+        )
+        self.assertEqual(response.status_code, 200)
+        # Проверяем, что в теле есть адрес и промокод
+        self.assertContains(response, 'Test Address 123')
+        self.assertContains(response, 'TEST123')
+        # Проверяем контекст
+        self.assertEqual(response.context['order'].pk, self.order.pk)
