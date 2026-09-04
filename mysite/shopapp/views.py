@@ -100,7 +100,7 @@ class ProductUpdateView(UpdateView):
     # fields = ("name", "price", "description")
     # template_name = "shopapp/product_update_form.html"
     model = Product
-    fields = ("name", "price", "description")
+    fields = ("name", "price", "description", "preview")
     template_name_suffix = "_update_form"  # → ищет product_update_form.html
 
     def test_func(self):
