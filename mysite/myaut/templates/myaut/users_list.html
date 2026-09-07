@@ -1,0 +1,16 @@
+{% extends "myaut/base.html" %}
+
+{% block title %}Users List{% endblock %}
+
+{% block body %}
+    <h1>All Users</h1>
+    <ul>
+        {% for user in users %}
+            <li>
+                <a href="{% url 'myaut:user_profile' pk=user.pk %}">
+                    {{ user.username }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

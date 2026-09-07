@@ -1,0 +1,31 @@
+{% extends "myaut/base.html" %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block body %}
+    <h1>User: {{ user.username }}</h1>
+
+    <div>
+        {% if profile.avatar %}
+            <img src="{{ profile.avatar.url }}" alt="Avatar" style="max-width: 150px;">
+        {% else %}
+            <p>Нет аватара</p>
+        {% endif %}
+    </div>
+
+    <p><strong>Email:</strong> {{ user.email|default:"Не указан" }}</p>
+    <p><strong>Bio:</strong> {{ profile.bio|default:"Не указано" }}</p>
+
+    <div>
+        <a href="{% url 'myaut:users_list' %}">Back to users list</a>
+    </div>
+
+    <!-- ⬇️ ССЫЛКА НА РЕДАКТИРОВАНИЕ (только если можно) -->
+    {% if can_edit %}
+        <div>
+            <a href="{% url 'myaut:about-me' %}">Редактировать свой профиль</a>
+        </div>
+    {% endif %}
+    <!-- ⬆️ -->
+
+{% endblock %}

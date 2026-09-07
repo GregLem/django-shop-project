@@ -66,7 +66,7 @@ MIDDLEWARE = [
     'requestdattapp.middlewares.CountRequestsMiddleware',
 
     # Ограничивает слишком частые запросы (Throttling)
-    'requestdattapp.middlewares.ThrottlingMiddleware',
+    # 'requestdattapp.middlewares.ThrottlingMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'

@@ -15,7 +15,17 @@
             {% if product.preview %}
                 <img src="{{ product.preview.url }}" alt="{{ product.preview.name }}" width="100">
             {% endif %}
-        </div>
+            <h3>Images:</h3>
+            <div>
+                {% for img in product.images.all %}
+                    <div>
+                        <img src="{{ img.image.url }}" alt="{{ img.image.name }}" width="100">
+                        <div>{{img.description}}</div>
+                    </div>
+                {% empty %}
+                    <p>No images uploaded yet</p>
+                {% endfor %}    
+            </div>
     </div>
     <div>
         <a href="{% url 'shopapp:products_list' %}">

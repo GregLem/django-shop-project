@@ -6,7 +6,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonRes
 from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from .forms import ProductForm, GroupForm
-from .models import Product, Order
+from .models import Product, Order, ProductImage
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 
 from django.contrib.auth.decorators import user_passes_test
@@ -43,7 +43,8 @@ class GroupListView(View):
         return redirect(request.path)
 
 class ProductDetailView(DetailView):
-    model = Product
+    # model = Product
+    queryset = Product.objects.prefetch_related("images").all()
     template_name = "shopapp/product-details.html"
     context_object_name = "product"
 
@@ -95,13 +96,14 @@ class ProductCreateView(UserPassesTestMixin, CreateView):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(UpdateView, UserPassesTestMixin):
     # model = Product
     # fields = ("name", "price", "description")
     # template_name = "shopapp/product_update_form.html"
     model = Product
-    fields = ("name", "price", "description", "preview")
+    # fields = ("name", "price", "description", "preview")
     template_name_suffix = "_update_form"  # → ищет product_update_form.html
+    form_class = ProductForm
 
     def test_func(self):
         product = self.get_object()
@@ -110,6 +112,16 @@ class ProductUpdateView(UpdateView):
             user.has_perm("shopapp.change_product") and
             product.created_by == user
         )
+
+    def form_valid(self, form):
+       response = super(ProductUpdateView, self).form_valid(form)
+       for image in form.files.getlist("images"):
+           ProductImage.objects.create(product=self.object, image=image,)
+
+       return response     
+        
+        
+    
 
     def get_success_url(self):
         return reverse("shopapp:product_details", kwargs={"pk": self.object.pk})
