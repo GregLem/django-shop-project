@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 from .models import Product, Order
+from decimal import Decimal
 
 class ProductCreateTestCase(TestCase):
     def setUp(self):
@@ -44,7 +45,7 @@ class ProductCreateTestCase(TestCase):
 
         # Проверяем, что продукт создался
         product = Product.objects.get(name="Test Product")
-        self.assertEqual(product.price, 9.99)
+        self.assertEqual(product.price, Decimal('9.99'))
         self.assertEqual(product.discount, 10)
         self.assertEqual(product.created_by, self.user)  # ← проверяем автора
 

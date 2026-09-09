@@ -129,3 +129,26 @@ class UserProfileView(DetailView):
             self.request.user == self.object
         )
         return context
+
+class ProfileUpdateView(UpdateView):
+    model = Profile
+    form_class = ProfileForm
+    template_name = "myaut/profile_update.html"
+
+    def get_object(self, queryset=None):
+        user = get_object_or_404(User, pk=self.kwargs["pk"])
+        return user.profile
+
+    def dispatch(self, request, *args, **kwargs):
+        profile = self.get_object()
+
+        if not (request.user.is_staff or request.user == profile.user):
+            return HttpResponse("Доступ запрещён", status=403)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse(
+            "myaut:user_profile",
+            kwargs={"pk": self.object.user.pk}
+        )

@@ -1,0 +1,46 @@
+{% extends "myaut/base.html" %}
+
+{% block title %}
+    Update Profile
+{% endblock %}
+
+{% block body %}
+
+    <h1>Update Profile</h1>
+
+    <p>
+        Username: {{ object.user.username }}
+    </p>
+
+    {% if object.avatar %}
+        <div>
+            <p>Current avatar:</p>
+            <img
+                src="{{ object.avatar.url }}"
+                alt="Avatar"
+                style="max-width: 150px;"
+            >
+        </div>
+    {% else %}
+        <p>Нет аватара</p>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">
+            Сохранить
+        </button>
+
+    </form>
+
+    <p>
+        <a href="{% url 'myaut:user_profile' pk=object.user.pk %}">
+            Назад к профилю
+        </a>
+    </p>
+
+{% endblock %}

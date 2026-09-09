@@ -13,6 +13,7 @@ from .views import (
     FooBarView,
     UsersListView,
     UserProfileView,
+    ProfileUpdateView,
 )
 
 app_name = "myaut"
@@ -29,4 +30,9 @@ urlpatterns = [
     path("foo-bar/", FooBarView.as_view(), name="foo-bar"),
     path("users/", UsersListView.as_view(), name="users_list"),
     path("user/<int:pk>/", UserProfileView.as_view(), name="user_profile"),
+    path(
+    "user/<int:pk>/update/",
+    ProfileUpdateView.as_view(),
+    name="user_profile_update",
+),
 ]

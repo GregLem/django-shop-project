@@ -96,7 +96,7 @@ class ProductCreateView(UserPassesTestMixin, CreateView):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
 
-class ProductUpdateView(UpdateView, UserPassesTestMixin):
+class ProductUpdateView(UserPassesTestMixin, UpdateView):
     # model = Product
     # fields = ("name", "price", "description")
     # template_name = "shopapp/product_update_form.html"
@@ -144,7 +144,7 @@ class OrderListView(LoginRequiredMixin, ListView):
         "user"
     ).prefetch_related("products")
 
-    template_name = "shopapp/orders_list.html"
+    template_name = "shopapp/order_list.html"
     context_object_name = "orders"
 
 class OrderDetailView(PermissionRequiredMixin,DetailView):
@@ -175,7 +175,7 @@ class OrderUpdateView(UpdateView):
         return reverse("shopapp:order_details", kwargs={"pk": self.object.pk})
 
 class OrderDeleteView(PermissionRequiredMixin,DeleteView):
-    permission_required = "shopapp.view_order"
+    permission_required = "shopapp.delete_order"
     model = Order
     template_name = "shopapp/order_confirm_delete.html"
     success_url = reverse_lazy("shopapp:order_list")
