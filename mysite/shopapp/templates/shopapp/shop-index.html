@@ -1,29 +1,38 @@
 {% extends "shopapp/base.html" %}
 
-{% block title %}
-    Shop Index
-{% endblock  %}
+{% block title %}Главная{% endblock %}
 
 {% block body %}
-    <h1>Hello Shop Index</h1>
-    <div>
+    <div class="card">
+        <h1>🏪 Добро пожаловать в магазин!</h1>
+        <p>Здесь вы можете найти лучшие товары по выгодным ценам.</p>
+        <a href="{% url 'shopapp:products_list' %}" class="btn btn-primary">
+            📦 Перейти к товарам
+        </a>
+    </div>
+
+    <div class="card">
+        <h2>⏱️ Время работы страницы: {{ time_running|floatformat:3 }} сек</h2>
+
+        <h3>🔥 Популярные товары</h3>
         <ul>
-            {% for name, price in products  %}
-                <li>{{name|capfirst}} ({{name|length}}) for ${{price|floatformat:0}} </li>
-                {% if name|length == 7 %}
-                <span>Luky product</span>
-                {% endif %}
-            {% empty %}
-                No products here
+            {% for name, price in products %}
+                <li>{{ name }} — {{ price }} ₽</li>
             {% endfor %}
         </ul>
     </div>
-    <div>
-        Time running : {{ time_running }}
-    </div>
 
-    <div>
-        {% lorem 3 p random %}
-    </div>
-
-{% endblock  %}
+    {% if not user.is_authenticated %}
+        <div class="card">
+            <p>Войдите, чтобы оформлять заказы.</p>
+            <a href="{% url 'myaut:login' %}" class="btn btn-primary">🔑 Войти</a>
+            <a href="{% url 'myaut:register' %}" class="btn btn-success">📝 Зарегистрироваться</a>
+        </div>
+    {% else %}
+        <div class="card">
+            <p>👋 Добро пожаловать, {{ user.username }}!</p>
+            <a href="{% url 'myaut:about-me' %}" class="btn btn-primary">👤 Мой профиль</a>
+            <a href="{% url 'shopapp:order_list' %}" class="btn btn-primary">📋 Мои заказы</a>
+        </div>
+    {% endif %}
+{% endblock %}

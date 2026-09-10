@@ -19,15 +19,16 @@ class AboutMeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context["profile"] = self.request.user.profile
-            context["profile_form"] = ProfileForm(instance=self.request.user.profile)
+            profile, created = Profile.objects.get_or_create(user=self.request.user)
+            context["profile"] = profile
+            context["profile_form"] = ProfileForm(instance=profile)
         return context
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect("myaut:login")
 
-        profile = request.user.profile
+        profile, created = Profile.objects.get_or_create(user=request.user)
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
@@ -121,8 +122,8 @@ class UserProfileView(DetailView):
     context_object_name = "user"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)   # ← отступ исправлен
-        profile = self.object.profile
+        context = super().get_context_data(**kwargs)
+        profile, created = Profile.objects.get_or_create(user=self.object)  # ← get_or_create
         context["profile"] = profile
         context["can_edit"] = (
             self.request.user.is_staff or

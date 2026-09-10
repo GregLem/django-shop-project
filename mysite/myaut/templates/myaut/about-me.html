@@ -1,34 +1,33 @@
-{% extends "myaut/base.html" %}
+{% extends "shopapp/base.html" %}
 
-{% block title %}About Me{% endblock %}
+{% block title %}Мой профиль{% endblock %}
 
 {% block body %}
-    <h1>User info</h1>
+    <div class="card">
+        <h1>👤 {{ user.username }}</h1>
 
-    {% if user.is_authenticated %}
-        <div>
-            {% if profile.avatar %}
-                <img src="{{ profile.avatar.url }}" alt="Avatar" style="max-width: 150px;">
-            {% else %}
-                <p>Нет аватара</p>
-            {% endif %}
-        </div>
+        {% if profile.avatar %}
+            <img src="{{ profile.avatar.url }}" alt="Avatar" class="avatar">
+        {% else %}
+            <p>Нет аватара</p>
+        {% endif %}
 
+        <p><strong>Email:</strong> {{ user.email|default:"Не указан" }}</p>
+        <p><strong>Bio:</strong> {{ profile.bio|default:"Не указано" }}</p>
+
+        <h2>✏️ Редактировать профиль</h2>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ profile_form.as_p }}
-            <button type="submit">Сохранить</button>
+            <button type="submit" class="btn btn-success">💾 Сохранить</button>
         </form>
+    </div>
 
-        <p>Username: {{ user.username }}</p>
-        <p>Bio: {{ profile.bio|default:"Не указано" }}</p>
-
-        <form method="post" action="{% url 'myaut:logout' %}">
+    <div class="card">
+        <a href="{% url 'myaut:users_list' %}" class="btn btn-primary">👥 Все пользователи</a>
+        <form method="post" action="{% url 'myaut:logout' %}" style="display: inline;">
             {% csrf_token %}
-            <button type="submit">Выйти</button>
+            <button type="submit" class="btn btn-danger">🚪 Выйти</button>
         </form>
-    {% else %}
-        <h2>User is Anonymous</h2>
-        <a href="{% url 'myaut:login' %}">Войти</a>
-    {% endif %}
+    </div>
 {% endblock %}

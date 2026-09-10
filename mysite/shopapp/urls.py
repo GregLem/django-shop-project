@@ -39,4 +39,5 @@ urlpatterns = [
 
     # Группы
     path("groups/", GroupListView.as_view(), name="groups_list"),
+    path("", ShopIndexView.as_view(), name="index"),
 ]

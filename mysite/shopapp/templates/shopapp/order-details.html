@@ -1,34 +1,36 @@
 {% extends "shopapp/base.html" %}
 
-{% block title %}
-    Order № {{ order.id }} details
-{% endblock %}
+{% block title %}Заказ №{{ order.pk }}{% endblock %}
 
 {% block body %}
-    <h1>Order № {{ order.id }} details</h1>
-    
-    <div>
-        <p><strong>User:</strong> {% firstof order.user.first_name order.user.username %}</p>
-        <p><strong>Promocode:</strong> <code>{{ order.promocode }}</code></p>
-        <p><strong>Delivery address:</strong> {{ order.delivery_address }}</p>
-    </div>
-    
-    <h2>Products in this order:</h2>
-    <ul>
-        {% for product in order.products.all %}
-            <li>{{ product.name }} — ${{ product.price }}</li>
-        {% empty %}
-            <li>No products in this order</li>
-        {% endfor %}
-    </ul>
-    
-    <div>
-        <a href="{% url 'shopapp:order_list' %}">Back to orders list</a>
-    </div>
-    <div>
-        <a href="{% url 'shopapp:order_update' pk=order.id %}">Update order</a>
-    </div>
-    <div>
-        <a href="{% url 'shopapp:order_delete' pk=order.id %}">Delete order</a>
+    <div class="card">
+        <h1>📋 Заказ №{{ order.pk }}</h1>
+
+        <div style="margin: 20px 0;">
+            <p><strong>Пользователь:</strong> {{ order.user.username }}</p>
+            <p><strong>Промокод:</strong> {{ order.promocode|default:"Не указан" }}</p>
+            <p><strong>Адрес доставки:</strong> {{ order.delivery_address|default:"Не указан" }}</p>
+            <p><strong>Дата:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
+        </div>
+
+        <h2>📦 Товары в заказе</h2>
+        <ul>
+            {% for product in order.products.all %}
+                <li>
+                    <a href="{% url 'shopapp:product_details' pk=product.pk %}">
+                        {{ product.name }}
+                    </a>
+                    — {{ product.price }} ₽
+                </li>
+            {% empty %}
+                <li>Товаров нет</li>
+            {% endfor %}
+        </ul>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
+            <a href="{% url 'shopapp:order_list' %}" class="btn btn-primary">← Назад к списку</a>
+            <a href="{% url 'shopapp:order_update' pk=order.pk %}" class="btn btn-warning">✏️ Редактировать</a>
+            <a href="{% url 'shopapp:order_delete' pk=order.pk %}" class="btn btn-danger">🗑️ Удалить</a>
+        </div>
     </div>
 {% endblock %}

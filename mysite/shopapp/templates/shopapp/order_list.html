@@ -1,34 +1,45 @@
 {% extends "shopapp/base.html" %}
 
-{% block titel %}
-    Orders List
-{% endblock %}
+{% block title %}Заказы{% endblock %}
 
 {% block body %}
-    <h1>Orders:</h1>
-    {% if orders %}
-        <div>
+    <div class="card">
+        <h1>📋 Заказы</h1>
+
+        {% if orders %}
             {% for order in orders %}
-                <div>
-                    <p><a href="{% url 'shopapp:order_details' order.pk %}">View Details №{{order.pk}}</a></p>
-                    <p>Order by {% firstof order.user.first_name order.user.username  %}</p>
-                    <p>Promocode: <code>{{order.promocode}}</code></p>
-                    <p>Delivery addres: {{order.delivery_address}}</p>
-                </div>
-                <div>
-                    Product in Order
-                
+                <div class="card" style="margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="margin: 0;">
+                            <a href="{% url 'shopapp:order_details' pk=order.pk %}" style="color: #1a1a2e; text-decoration: none;">
+                                Заказ №{{ order.pk }}
+                            </a>
+                        </h2>
+                        <span style="color: #888; font-size: 14px;">
+                            {{ order.created_at|date:"d.m.Y H:i" }}
+                        </span>
+                    </div>
+
+                    <p style="margin: 10px 0;"><strong>Пользователь:</strong> {{ order.user.username }}</p>
+                    <p style="margin: 10px 0;"><strong>Адрес:</strong> {{ order.delivery_address|default:"Не указан" }}</p>
+                    {% if order.promocode %}
+                        <p style="margin: 10px 0;"><strong>Промокод:</strong> <code>{{ order.promocode }}</code></p>
+                    {% endif %}
+
+                    <p style="margin: 10px 0;"><strong>Товары:</strong></p>
                     <ul>
                         {% for product in order.products.all %}
-                            <li>{{product.name}} for ${{product.price}}</li>
+                            <li>{{ product.name }} — {{ product.price }} ₽</li>
                         {% endfor %}
                     </ul>
-                </div>
+
+                    <a href="{% url 'shopapp:order_details' pk=order.pk %}" class="btn btn-primary">
+                        Подробнее →
+                    </a>
                 </div>
             {% endfor %}
-        </div>
-    {% else %}
-        <h3>No orders yet</h3>
-    {% endif %}
-{% endblock  %}
-
+        {% else %}
+            <p>Заказов пока нет.</p>
+        {% endif %}
+    </div>
+{% endblock %}

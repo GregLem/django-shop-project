@@ -147,18 +147,18 @@ class OrderListView(LoginRequiredMixin, ListView):
     template_name = "shopapp/order_list.html"
     context_object_name = "orders"
 
-class OrderDetailView(PermissionRequiredMixin,DetailView):
-    model = Order
-    template_name = "shopapp/order-details.html"
-    context_object_name = "order"
-    permission_required = "shopapp.view_order"
+# class OrderDetailView(PermissionRequiredMixin,DetailView):
+#     model = Order
+#     template_name = "shopapp/order-details.html"
+#     context_object_name = "order"
+#     permission_required = "shopapp.view_order"
 
-    def get_queryset(self):
-        return (
-            Order.objects
-            .select_related("user")
-            .prefetch_related("products")
-        )
+#     def get_queryset(self):
+#         return (
+#             Order.objects
+#             .select_related("user")
+#             .prefetch_related("products")
+#         )
 class OrderCreateView(CreateView):
     model = Order
     fields = ("delivery_address", "promocode", "user", "products")
@@ -179,6 +179,14 @@ class OrderDeleteView(PermissionRequiredMixin,DeleteView):
     model = Order
     template_name = "shopapp/order_confirm_delete.html"
     success_url = reverse_lazy("shopapp:order_list")
+
+class OrderDetailView(LoginRequiredMixin, DetailView):
+    model = Order
+    template_name = "shopapp/order-details.html"
+    context_object_name = "order"
+
+    def get_queryset(self):
+        return Order.objects.select_related("user").prefetch_related("products")
 
 class ProductsDataExportView(View):
     def get(self, request: HttpRequest) -> JsonResponse:

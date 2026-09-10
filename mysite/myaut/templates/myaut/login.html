@@ -1,25 +1,21 @@
-{% extends "myaut/base.html" %}
+{% extends "shopapp/base.html" %}
 
-{% block title %}
-    Login
-{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block body %}
-    <h1>Login</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{form.as_p}}
-        {% if error %}
-            <p style="color: red;">{{ error }}</p>
+    <div class="card">
+        <h1>Login</h1>
+
+        {% if form.errors %}
+            <p style="color: red;">Неверный логин или пароль.</p>
         {% endif %}
-        <p>
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="Username" required>
-        </p>
-        <p>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" placeholder="Password" required>
-        </p>
-        <button type="submit">Login</button>
-    </form>
-{% endblock  %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Войти</button>
+        </form>
+
+        <p>Нет аккаунта? <a href="{% url 'myaut:register' %}">Зарегистрироваться</a></p>
+    </div>
+{% endblock %}

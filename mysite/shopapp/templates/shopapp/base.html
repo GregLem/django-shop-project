@@ -1,31 +1,47 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}
-            Base title
-           {% endblock  %}
-    </title>
+    <title>{% block title %}Мой магазин{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    {% block body %}
-       Base body
-    {% endblock  %}
+    <div class="container">
+        <nav>
+            <a href="{% url 'shopapp:index' %}">🏠 Главная</a>
+            <a href="{% url 'shopapp:products_list' %}">📦 Товары</a>
+            <a href="{% url 'shopapp:order_list' %}">📋 Заказы</a>
 
-    <div>
-        {% now "H:i" %}
-    </div>
-    <div>
-        {% now "l" as current_weekday %}
-        Today is {{current_weekday}}
-    </div>
-<!-- Ссылка на создание продукта (только для авторизованных с правами) -->
-    {% if perms.shopapp.add_product %}
-        <div>
-            <a href="{% url 'shopapp:create_product' %}">Создать продукт</a>
-        </div>
-    {% endif %}
+            {% if user.is_authenticated %}
+                <a href="{% url 'myaut:about-me' %}">👤 {{ user.username }}</a>
+                <a href="{% url 'myaut:users_list' %}">👥 Пользователи</a>
+                <form method="post" action="{% url 'myaut:logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit">🚪 Выйти</button>
+                </form>
+            {% else %}
+                <a href="{% url 'myaut:login' %}">🔑 Войти</a>
+                <a href="{% url 'myaut:register' %}">📝 Регистрация</a>
+            {% endif %}
+        </nav>
 
+        {% if messages %}
+            {% for message in messages %}
+                <div class="messages {% if message.tags %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <main>
+            {% block body %}{% endblock %}
+        </main>
+
+        <footer style="margin-top: 40px; text-align: center; color: #888; font-size: 14px;">
+            © 2026 Мой магазин
+        </footer>
+    </div>
 </body>
 </html>
