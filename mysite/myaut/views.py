@@ -8,6 +8,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.views import View
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Profile
 from .forms import ProfileForm
@@ -52,25 +53,6 @@ class RegisterView(CreateView):
         login(self.request, user)
         return response
 
-
-def login_view(request: HttpRequest) -> HttpResponse:
-    if request.method == "GET":
-        if request.user.is_authenticated:
-            return redirect("/admin/")
-        return render(request, "myaut/login.html")
-    
-    username = request.POST.get("username")
-    password = request.POST.get("password")
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
-        return redirect("/admin/")
-    return render(request, "myaut/login.html", context={"error": "Invalid username or password"})
-
-
-def logout_view(request: HttpRequest) -> HttpResponse:
-    logout(request)
-    return redirect(reverse("myaut:login"))
 
 
 class MyLogoutView(LogoutView):

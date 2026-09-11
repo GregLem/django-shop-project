@@ -141,7 +141,7 @@ class OrdersListViewTestCase(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Orders")
+        self.assertContains(response, "Заказы")
 
     # def test_orders_view_not_authenticated(self):
     #     self.client.logout()

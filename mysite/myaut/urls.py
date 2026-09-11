@@ -1,12 +1,10 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView
 from .views import (
-    login_view,
     set_cookie_view,
     get_cookie_view,
     set_session_view,
     get_session_view,
-    logout_view,
     MyLogoutView,
     AboutMeView,
     RegisterView,
