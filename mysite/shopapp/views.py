@@ -188,15 +188,29 @@ class ProductDeleteView(DeleteView):
 # ============================================================
 
 class OrderListView(LoginRequiredMixin, ListView):
-    queryset = (
-        Order.objects
-        .select_related("user")
-        .prefetch_related("products")
-    )
-
+    """
+    Список заказов.
+    - Обычный пользователь видит только свои заказы.
+    - Суперпользователь и staff видят все заказы.
+    """
     template_name = "shopapp/order_list.html"
     context_object_name = "orders"
 
+    def get_queryset(self):
+        user = self.request.user
+        
+        queryset = (
+            Order.objects
+            .select_related("user")
+            .prefetch_related("products")
+        )
+        
+        # Суперюзер и staff видят все заказы
+        if user.is_superuser or user.is_staff:
+            return queryset
+        
+        # Обычный пользователь — только свои
+        return queryset.filter(user=user)
 
 class OrderDetailView(LoginRequiredMixin, DetailView):
     model = Order
@@ -204,23 +218,57 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "order"
 
     def get_queryset(self):
-        return (
-            Order.objects
-            .select_related("user")
-            .prefetch_related("products")
-        )
+        user = self.request.user
+        queryset = Order.objects.select_related("user").prefetch_related("products")
+        
+        # Суперюзер/staff видят все
+        if user.is_superuser or user.is_staff:
+            return queryset
+        
+        # Обычные — только свои
+        return queryset.filter(user=user)
 
+# class OrderCreateView(CreateView):
+#     model = Order
+#     fields = (
+#         "delivery_address",
+#         "promocode",
+#         "user",
+#         "products",
+#     )
+#     template_name = "shopapp/order_create.html"
+#     success_url = reverse_lazy("shopapp:order_list")
 
-class OrderCreateView(CreateView):
+class OrderCreateView(LoginRequiredMixin, CreateView):
+    """
+    Создание заказа.
+    
+    Если в URL передан ?product=<id>, то поле products
+    автоматически заполняется выбранным товаром.
+    """
     model = Order
-    fields = (
-        "delivery_address",
-        "promocode",
-        "user",
-        "products",
-    )
+    fields = ("delivery_address", "promocode", "user", "products")
     template_name = "shopapp/order_create.html"
     success_url = reverse_lazy("shopapp:order_list")
+
+    def get_initial(self):
+        """
+        Предзаполняем форму:
+        - user — текущий пользователь
+        - products — товар из URL (?product=<id>)
+        """
+        initial = super().get_initial()
+
+        # Текущий пользователь
+        if self.request.user.is_authenticated:
+            initial["user"] = self.request.user
+
+        # Товар из GET-параметра
+        product_id = self.request.GET.get("product")
+        if product_id:
+            initial["products"] = [product_id]
+
+        return initial
 
 
 class OrderUpdateView(UpdateView):

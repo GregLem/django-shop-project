@@ -1,45 +1,100 @@
 {% extends "shopapp/base.html" %}
 
 {% block title %}
-    Product №{{ product.id }}
-{% endblock  %}
+    Товар №{{ product.id }}
+{% endblock %}
 
 {% block body %}
-    <h1>Product <strong>{{ product.name }}</strong></h1>
-    <div>
-        <div>
-            <div>Description: {{ product.description }}</div>
-            <div>Price: {{ product.price }}</div>
-            <div>Discount: {% firstof product.discount "No Discount" %}</div>
-            <div>Archived: {{ product.archived }}</div>
-            {% if product.preview %}
-                <img src="{{ product.preview.url }}" alt="{{ product.preview.name }}" width="100">
+
+    <!-- ============================================================
+         ОСНОВНАЯ КАРТОЧКА ТОВАРА
+         ============================================================ -->
+    <div class="card">
+        <h1>{{ product.name }}</h1>
+
+        <!-- Главное фото (preview) -->
+        {% if product.preview %}
+            <img
+                src="{{ product.preview.url }}"
+                alt="{{ product.name }}"
+                class="product-preview"
+            >
+        {% endif %}
+
+        <!-- Характеристики -->
+        <div style="margin: 20px 0;">
+            <p><strong>Описание:</strong> {{ product.description|default:"Нет описания" }}</p>
+            <p><strong>Цена:</strong> {{ product.price }} ₽</p>
+            <p><strong>Скидка:</strong> {% firstof product.discount "Без скидки" %}</p>
+            <p><strong>Статус:</strong> {% if product.archived %}📦 Архив{% else %}✅ Активен{% endif %}</p>
+        </div>
+
+        <!-- ============================================================
+             КНОПКИ ДЕЙСТВИЙ
+             ============================================================ -->
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
+
+            <!-- Назад к списку -->
+            <a href="{% url 'shopapp:products_list' %}" class="btn btn-primary">
+                ← Назад к списку
+            </a>
+
+            <!-- КУПИТЬ (новая кнопка) -->
+            {% if user.is_authenticated %}
+                <a href="{% url 'shopapp:order_create' %}?product={{ product.pk }}"
+                   class="btn btn-success">
+                    🛒 Купить
+                </a>
+            {% else %}
+                <a href="{% url 'myaut:login' %}?next={% url 'shopapp:order_create' %}?product={{ product.pk }}"
+                   class="btn btn-success">
+                    🛒 Купить
+                </a>
             {% endif %}
-            <h3>Images:</h3>
-            <div>
+
+            <!-- Редактировать (только автор или суперпользователь) -->
+            {% if user.is_superuser or product.created_by == user and perms.shopapp.change_product %}
+                <a href="{% url 'shopapp:product_update' pk=product.pk %}"
+                   class="btn btn-warning">
+                    ✏️ Редактировать
+                </a>
+            {% endif %}
+
+            <!-- Архивировать -->
+            <a href="{% url 'shopapp:product_delete' pk=product.pk %}"
+               class="btn btn-danger">
+                🗑️ Архивировать
+            </a>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ГАЛЕРЕЯ ДОПОЛНИТЕЛЬНЫХ ИЗОБРАЖЕНИЙ
+         ============================================================ -->
+    <div class="card">
+        <h2>🖼️ Галерея</h2>
+
+        {% if product.images.all %}
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                 {% for img in product.images.all %}
-                    <div>
-                        <img src="{{ img.image.url }}" alt="{{ img.image.name }}" width="100">
-                        <div>{{img.description}}</div>
+                    <div style="text-align: center;">
+                        <img
+                            src="{{ img.image.url }}"
+                            alt="{{ img.description|default:product.name }}"
+                            style="max-width: 150px; border-radius: 8px; border: 1px solid #ddd;"
+                        >
+                        {% if img.description %}
+                            <p style="margin-top: 5px; font-size: 14px; color: #666;">
+                                {{ img.description }}
+                            </p>
+                        {% endif %}
                     </div>
-                {% empty %}
-                    <p>No images uploaded yet</p>
-                {% endfor %}    
+                {% endfor %}
             </div>
+        {% else %}
+            <p>Дополнительных изображений нет.</p>
+        {% endif %}
     </div>
-    <div>
-        <a href="{% url 'shopapp:products_list' %}">
-            Back to Products List
-        </a>
-    </div>
-    <div>
-        <a href="{% url 'shopapp:product_delete' product.pk %}">
-            Arhive Product
-        </a>
-    </div>
-    <div>
-        <a href="{% url 'shopapp:product_update' product.pk %}">
-            Update Product
-        </a>
-    </div>
-{% endblock  %}
+
+{% endblock %}

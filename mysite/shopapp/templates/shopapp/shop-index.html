@@ -4,7 +4,9 @@
 
 {% block body %}
 
-    <!-- Приветственный блок -->
+    <!-- ============================================================
+         ПРИВЕТСТВЕННЫЙ БЛОК
+         ============================================================ -->
     <div class="card">
         <h1>🏪 Добро пожаловать в магазин!</h1>
         <p>Здесь вы можете найти лучшие товары по выгодным ценам.</p>
@@ -13,32 +15,55 @@
         </a>
     </div>
 
-    <!-- Популярные товары -->
+    <!-- ============================================================
+         ПОПУЛЯРНЫЕ ТОВАРЫ
+         ============================================================ -->
     <div class="card">
         <h2>🔥 Популярные товары</h2>
 
         {% if products %}
+            <!-- Сетка для карточек (CSS: display: grid, 4 колонки) -->
             <div class="product-grid">
                 {% for product in products %}
+                    <!-- Карточка одного товара -->
                     <div class="product-card">
 
-                        <!-- Изображение -->
+                        <!-- Изображение товара (preview) -->
                         <div class="product-image">
                             {% if product.preview %}
                                 <img src="{{ product.preview.url }}" alt="{{ product.name }}">
                             {% else %}
+                                <!-- Заглушка, если у товара нет фото -->
                                 <div class="product-placeholder">📦</div>
                             {% endif %}
                         </div>
 
-                        <!-- Информация -->
+                        <!-- Информация о товаре -->
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
                             <p class="product-price">{{ product.price }} ₽</p>
-                            <a href="{% url 'shopapp:product_details' pk=product.pk %}"
-                               class="btn btn-primary product-button">
-                                Подробнее →
-                            </a>
+
+                            <!-- Кнопки: Подробнее + Купить -->
+                            <div style="display: flex; gap: 8px; margin-top: auto;">
+                                <a href="{% url 'shopapp:product_details' pk=product.pk %}"
+                                   class="btn btn-primary product-button">
+                                    Подробнее
+                                </a>
+
+                                {% if user.is_authenticated %}
+                                    <!-- Авторизован → сразу на оформление заказа -->
+                                    <a href="{% url 'shopapp:order_create' %}?product={{ product.pk }}"
+                                       class="btn btn-success product-button">
+                                        🛒 Купить
+                                    </a>
+                                {% else %}
+                                    <!-- Не авторизован → сначала на логин, потом на заказ -->
+                                    <a href="{% url 'myaut:login' %}?next={% url 'shopapp:order_create' %}?product={{ product.pk }}"
+                                       class="btn btn-success product-button">
+                                        🛒 Купить
+                                    </a>
+                                {% endif %}
+                            </div>
                         </div>
 
                     </div>
@@ -49,7 +74,9 @@
         {% endif %}
     </div>
 
-    <!-- Блок пользователя -->
+    <!-- ============================================================
+         БЛОК ПОЛЬЗОВАТЕЛЯ
+         ============================================================ -->
     {% if user.is_authenticated %}
         <div class="card">
             <p>👋 Добро пожаловать, <strong>{{ user.username }}</strong>!</p>
