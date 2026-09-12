@@ -1,22 +1,31 @@
-/* Базовые стили */
+/* ============================================================
+   БАЗОВЫЕ СТИЛИ
+   ============================================================ */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #f0f2f5;
     color: #333;
     min-height: 100vh;
 }
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
 
-/* Навигация */
+
+/* ============================================================
+   НАВИГАЦИЯ
+   ============================================================ */
+
 nav {
     background: #1a1a2e;
     padding: 15px 30px;
@@ -26,9 +35,11 @@ nav {
     align-items: center;
     gap: 15px;
     margin-bottom: 30px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
-nav a, nav button {
+
+nav a,
+nav button {
     color: #eee;
     text-decoration: none;
     font-size: 16px;
@@ -39,30 +50,42 @@ nav a, nav button {
     border: none;
     cursor: pointer;
 }
-nav a:hover, nav button:hover {
+
+nav a:hover,
+nav button:hover {
     background: #16213e;
     color: #ffcc00;
 }
+
 nav .user-info {
     margin-left: auto;
     color: #aaa;
     font-size: 14px;
 }
 
-/* Карточки */
+
+/* ============================================================
+   КАРТОЧКИ
+   ============================================================ */
+
 .card {
     background: #fff;
     padding: 20px 25px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     margin-bottom: 20px;
 }
+
 .card h2 {
     margin-bottom: 10px;
     color: #1a1a2e;
 }
 
-/* Кнопки */
+
+/* ============================================================
+   КНОПКИ
+   ============================================================ */
+
 .btn {
     display: inline-block;
     padding: 10px 20px;
@@ -73,37 +96,51 @@ nav .user-info {
     border: none;
     cursor: pointer;
 }
+
 .btn-primary {
     background: #0f3460;
     color: #fff;
 }
+
 .btn-primary:hover {
     background: #1a1a2e;
 }
+
 .btn-success {
     background: #28a745;
     color: #fff;
 }
+
 .btn-success:hover {
     background: #218838;
 }
+
 .btn-danger {
     background: #dc3545;
     color: #fff;
 }
+
 .btn-danger:hover {
     background: #c82333;
 }
+
 .btn-warning {
     background: #ffc107;
     color: #333;
 }
+
 .btn-warning:hover {
     background: #e0a800;
 }
 
-/* Формы */
-form input, form textarea, form select {
+
+/* ============================================================
+   ФОРМЫ
+   ============================================================ */
+
+form input,
+form textarea,
+form select {
     width: 100%;
     padding: 10px 15px;
     border: 1px solid #ddd;
@@ -111,6 +148,7 @@ form input, form textarea, form select {
     font-size: 16px;
     margin-bottom: 15px;
 }
+
 form button {
     width: 100%;
     padding: 12px;
@@ -123,16 +161,22 @@ form button {
     cursor: pointer;
     transition: 0.3s;
 }
+
 form button:hover {
     background: #1a1a2e;
 }
+
 label {
     font-weight: 500;
     display: block;
     margin-bottom: 5px;
 }
 
-/* Картинки */
+
+/* ============================================================
+   КАРТИНКИ
+   ============================================================ */
+
 .avatar {
     width: 100px;
     height: 100px;
@@ -140,46 +184,197 @@ label {
     object-fit: cover;
     border: 3px solid #0f3460;
 }
+
 .product-preview {
     max-width: 200px;
     border-radius: 8px;
     border: 1px solid #ddd;
 }
 
-/* Списки */
+
+/* ============================================================
+   СПИСКИ
+   ============================================================ */
+
 ul {
     list-style: none;
     padding: 0;
 }
+
 ul li {
     padding: 10px 0;
     border-bottom: 1px solid #eee;
 }
+
 ul li:last-child {
     border-bottom: none;
 }
+
 ul li a {
     color: #0f3460;
     text-decoration: none;
     font-weight: 500;
 }
+
 ul li a:hover {
     color: #ffcc00;
 }
 
-/* Сообщения */
+
+/* ============================================================
+   СООБЩЕНИЯ
+   ============================================================ */
+
 .messages {
     padding: 15px 20px;
     border-radius: 8px;
     margin-bottom: 20px;
 }
+
 .messages.success {
     background: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
 }
+
 .messages.error {
     background: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
+
+
+/* ============================================================
+   КАРТОЧКИ ТОВАРОВ НА ГЛАВНОЙ
+   ============================================================ */
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 25px;
+}
+
+
+/* Карточка отдельного товара */
+
+.product-card {
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    border-radius: 14px;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* Эффект при наведении */
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+
+/* Изображение */
+
+.product-image {
+    width: 100%;
+    height: 190px;
+    overflow: hidden;
+    background: #eeeeee;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.05);
+}
+
+
+/* Если у товара нет изображения */
+
+.product-placeholder {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 50px;
+    color: #888;
+}
+
+
+/* Информация */
+
+.product-info {
+    padding: 18px;
+
+    display: flex;
+    flex-direction: column;
+
+    flex: 1;
+}
+
+.product-info h3 {
+    margin: 0 0 10px;
+    font-size: 20px;
+    line-height: 1.3;
+}
+
+
+/* Цена */
+
+.product-price {
+    margin: 0 0 18px;
+    font-size: 19px;
+    font-weight: 600;
+    color: #333;
+}
+
+
+/* Кнопка */
+
+.product-button {
+    margin-top: auto;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   АДАПТИВНОСТЬ
+   ============================================================ */
+
+/* Планшет */
+
+@media (max-width: 1100px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+/* Телефон */
+
+@media (max-width: 600px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+

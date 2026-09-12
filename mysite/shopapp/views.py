@@ -33,25 +33,25 @@ from .models import Order, Product, ProductImage
 # ГЛАВНАЯ СТРАНИЦА
 # ============================================================
 
-class ShopIndexView(View):
-    def get(self, request: HttpRequest) -> HttpResponse:
-        products = [
-            ("laptop", 1999),
-            ("desktop", 2999),
-            ("laptop", 1999),
-            ("smartphone", 999),
-        ]
+# class ShopIndexView(View):
+#     def get(self, request: HttpRequest) -> HttpResponse:
+#         products = [
+#             ("laptop", 1999),
+#             ("desktop", 2999),
+#             ("laptop", 1999),
+#             ("smartphone", 999),
+#         ]
 
-        context = {
-            "time_running": default_timer(),
-            "products": products,
-        }
+#         context = {
+#             "time_running": default_timer(),
+#             "products": products,
+#         }
 
-        return render(
-            request,
-            "shopapp/shop-index.html",
-            context=context,
-        )
+#         return render(
+#             request,
+#             "shopapp/shop-index.html",
+#             context=context,
+#         )
 
 
 # ============================================================
@@ -81,6 +81,31 @@ class GroupListView(View):
 
         return redirect(request.path)
 
+
+
+class ShopIndexView(View):
+    def get(self, request: HttpRequest) -> HttpResponse:
+        start = default_timer()
+
+        # Берём активные товары из БД (4 последних)
+        products = (
+            Product.objects
+            .filter(archived=False)
+            .order_by("-created_at")[:4]
+        )
+
+        elapsed = default_timer() - start
+
+        context = {
+            "time_running": elapsed,
+            "products": products,
+        }
+
+        return render(
+            request,
+            "shopapp/shop-index.html",
+            context=context,
+        )
 
 # ============================================================
 # ТОВАРЫ

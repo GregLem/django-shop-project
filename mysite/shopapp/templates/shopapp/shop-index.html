@@ -3,6 +3,8 @@
 {% block title %}Главная{% endblock %}
 
 {% block body %}
+
+    <!-- Приветственный блок -->
     <div class="card">
         <h1>🏪 Добро пожаловать в магазин!</h1>
         <p>Здесь вы можете найти лучшие товары по выгодным ценам.</p>
@@ -11,28 +13,55 @@
         </a>
     </div>
 
+    <!-- Популярные товары -->
     <div class="card">
-        <h2>⏱️ Время работы страницы: {{ time_running|floatformat:3 }} сек</h2>
+        <h2>🔥 Популярные товары</h2>
 
-        <h3>🔥 Популярные товары</h3>
-        <ul>
-            {% for name, price in products %}
-                <li>{{ name }} — {{ price }} ₽</li>
-            {% endfor %}
-        </ul>
+        {% if products %}
+            <div class="product-grid">
+                {% for product in products %}
+                    <div class="product-card">
+
+                        <!-- Изображение -->
+                        <div class="product-image">
+                            {% if product.preview %}
+                                <img src="{{ product.preview.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="product-placeholder">📦</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Информация -->
+                        <div class="product-info">
+                            <h3>{{ product.name }}</h3>
+                            <p class="product-price">{{ product.price }} ₽</p>
+                            <a href="{% url 'shopapp:product_details' pk=product.pk %}"
+                               class="btn btn-primary product-button">
+                                Подробнее →
+                            </a>
+                        </div>
+
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Товаров пока нет.</p>
+        {% endif %}
     </div>
 
-    {% if not user.is_authenticated %}
+    <!-- Блок пользователя -->
+    {% if user.is_authenticated %}
+        <div class="card">
+            <p>👋 Добро пожаловать, <strong>{{ user.username }}</strong>!</p>
+            <a href="{% url 'myaut:about-me' %}" class="btn btn-primary">👤 Мой профиль</a>
+            <a href="{% url 'shopapp:order_list' %}" class="btn btn-primary">📋 Мои заказы</a>
+        </div>
+    {% else %}
         <div class="card">
             <p>Войдите, чтобы оформлять заказы.</p>
             <a href="{% url 'myaut:login' %}" class="btn btn-primary">🔑 Войти</a>
             <a href="{% url 'myaut:register' %}" class="btn btn-success">📝 Зарегистрироваться</a>
         </div>
-    {% else %}
-        <div class="card">
-            <p>👋 Добро пожаловать, {{ user.username }}!</p>
-            <a href="{% url 'myaut:about-me' %}" class="btn btn-primary">👤 Мой профиль</a>
-            <a href="{% url 'shopapp:order_list' %}" class="btn btn-primary">📋 Мои заказы</a>
-        </div>
     {% endif %}
+
 {% endblock %}
