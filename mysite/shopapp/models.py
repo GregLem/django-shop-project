@@ -35,8 +35,10 @@ class Product(models.Model):
     #     return self.description[:48] + "..."
         
 
+    # def __str__(self):
+    #     return f"Product(pk={self.pk}, name={self.name!r})"
     def __str__(self):
-        return f"Product(pk={self.pk}, name={self.name!r})"
+        return self.name  # ← показываем только название
 
 def product_images_directory_path(instance: "ProductImage", filename: str) -> str:
     return "products/product_{pk}/images/{filename}".format(pk=instance.product.pk, filename=filename,)

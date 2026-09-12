@@ -25,7 +25,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from .forms import GroupForm, ProductForm
+from .forms import GroupForm, ProductForm, OrderForm
 from .models import Order, Product, ProductImage
 
 
@@ -247,16 +247,11 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
     автоматически заполняется выбранным товаром.
     """
     model = Order
-    fields = ("delivery_address", "promocode", "user", "products")
+    form_class = OrderForm  # ← используем свою форму
     template_name = "shopapp/order_create.html"
     success_url = reverse_lazy("shopapp:order_list")
 
     def get_initial(self):
-        """
-        Предзаполняем форму:
-        - user — текущий пользователь
-        - products — товар из URL (?product=<id>)
-        """
         initial = super().get_initial()
 
         # Текущий пользователь
@@ -288,11 +283,16 @@ class OrderUpdateView(UpdateView):
         )
 
 
-class OrderDeleteView(PermissionRequiredMixin, DeleteView):
-    permission_required = "shopapp.delete_order"
+class OrderDeleteView(UserPassesTestMixin, DeleteView):
     model = Order
     template_name = "shopapp/order_confirm_delete.html"
     success_url = reverse_lazy("shopapp:order_list")
+
+    def test_func(self):
+        order = self.get_object()
+        user = self.request.user
+
+        return user.is_superuser or user.is_staff or order.user == user
 
 
 # ============================================================

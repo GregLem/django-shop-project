@@ -1,19 +1,44 @@
 {% extends "shopapp/base.html" %}
 
-{% block title %}
-    Create Order
-{% endblock %}
+{% block title %}Оформление заказа{% endblock %}
 
 {% block body %}
-    <h1>Create Order</h1>
-    
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Create Order</button>
-    </form>
-    
-    <div>
-        <a href="{% url 'shopapp:order_list' %}">Back to orders list</a>
+    <div class="card">
+        <h1>🛒 Оформление заказа</h1>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div style="margin-bottom: 20px;">
+                    <label for="{{ field.id_for_label }}"
+                           style="font-weight: 600; margin-bottom: 8px; display: block;">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <small style="color: #666;">{{ field.help_text }}</small>
+                    {% endif %}
+
+                    {% if field.errors %}
+                        <div style="color: #dc3545; margin-top: 5px;">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-success" style="width: 100%;">
+                ✅ Создать заказ
+            </button>
+        </form>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="{% url 'shopapp:order_list' %}" class="btn btn-primary">
+                ← Назад к списку заказов
+            </a>
+        </div>
     </div>
 {% endblock %}

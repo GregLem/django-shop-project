@@ -133,6 +133,15 @@ nav .user-info {
     background: #e0a800;
 }
 
+.btn-secondary {
+    background: #6c757d;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
 
 /* ============================================================
    ФОРМЫ
@@ -170,6 +179,49 @@ label {
     font-weight: 500;
     display: block;
     margin-bottom: 5px;
+}
+
+/* ============================================================
+   КРАСИВЫЕ ФОРМЫ
+   ============================================================ */
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="number"],
+form textarea,
+form select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
+
+form input:focus,
+form textarea:focus,
+form select:focus {
+    outline: none;
+    border-color: #0f3460;
+    box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+}
+
+form select[multiple] {
+    min-height: 150px;
+    padding: 10px;
+}
+
+form select[multiple] option {
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+form select[multiple] option:checked {
+    background: #0f3460;
+    color: white;
 }
 
 
