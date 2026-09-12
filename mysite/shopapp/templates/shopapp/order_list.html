@@ -9,9 +9,11 @@
         {% if orders %}
             {% for order in orders %}
                 <div class="card" style="margin-bottom: 15px;">
+
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <h2 style="margin: 0;">
-                            <a href="{% url 'shopapp:order_details' pk=order.pk %}" style="color: #1a1a2e; text-decoration: none;">
+                            <a href="{% url 'shopapp:order_details' pk=order.pk %}"
+                               style="color: #1a1a2e; text-decoration: none;">
                                 Заказ №{{ order.pk }}
                             </a>
                         </h2>
@@ -20,7 +22,30 @@
                         </span>
                     </div>
 
-                    <p style="margin: 10px 0;"><strong>Пользователь:</strong> {{ order.user.username }}</p>
+                    <!-- ============================================================
+                         БЛОК ПОКУПАТЕЛЯ (аватарка + имя)
+                         ============================================================ -->
+                    <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+                        {% if order.user.profile.avatar %}
+                            <img
+                                src="{{ order.user.profile.avatar.url }}"
+                                alt="{{ order.user.username }}"
+                                style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #0f3460;"
+                            >
+                        {% else %}
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; border: 2px solid #0f3460;">
+                                👤
+                            </div>
+                        {% endif %}
+                        <div>
+                            <p style="margin: 0; font-size: 12px; color: #888;">Покупатель:</p>
+                            <a href="{% url 'myaut:user_profile' pk=order.user.pk %}"
+                               style="color: #0f3460; text-decoration: none; font-weight: 600;">
+                                {{ order.user.username }}
+                            </a>
+                        </div>
+                    </div>
+
                     <p style="margin: 10px 0;"><strong>Адрес:</strong> {{ order.delivery_address|default:"Не указан" }}</p>
                     {% if order.promocode %}
                         <p style="margin: 10px 0;"><strong>Промокод:</strong> <code>{{ order.promocode }}</code></p>
@@ -36,6 +61,7 @@
                     <a href="{% url 'shopapp:order_details' pk=order.pk %}" class="btn btn-primary">
                         Подробнее →
                     </a>
+
                 </div>
             {% endfor %}
         {% else %}

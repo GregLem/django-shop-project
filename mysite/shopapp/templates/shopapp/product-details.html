@@ -1,16 +1,47 @@
 {% extends "shopapp/base.html" %}
 
 {% block title %}
-    Товар №{{ product.id }}
+    {{ product.name }}
 {% endblock %}
 
 {% block body %}
 
     <!-- ============================================================
-         ОСНОВНАЯ КАРТОЧКА ТОВАРА
+         КАРТОЧКА ТОВАРА
          ============================================================ -->
     <div class="card">
         <h1>{{ product.name }}</h1>
+
+        <!-- ============================================================
+             БЛОК ПРОДАВЦА (аватарка + имя)
+             ============================================================ -->
+        {% if product.created_by %}
+            <div style="display: flex; align-items: center; gap: 15px; margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+
+                <!-- Аватарка продавца -->
+                {% if product.created_by.profile.avatar %}
+                    <img
+                        src="{{ product.created_by.profile.avatar.url }}"
+                        alt="{{ product.created_by.username }}"
+                        style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 3px solid #0f3460;"
+                    >
+                {% else %}
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 3px solid #0f3460;">
+                        👤
+                    </div>
+                {% endif %}
+
+                <!-- Имя продавца + ссылка на профиль -->
+                <div>
+                    <p style="margin: 0; font-size: 13px; color: #888;">Продавец:</p>
+                    <a href="{% url 'myaut:user_profile' pk=product.created_by.pk %}"
+                       style="color: #0f3460; text-decoration: none; font-weight: 600; font-size: 18px;">
+                        {{ product.created_by.username }}
+                    </a>
+                </div>
+
+            </div>
+        {% endif %}
 
         <!-- Главное фото (preview) -->
         {% if product.preview %}
@@ -30,16 +61,14 @@
         </div>
 
         <!-- ============================================================
-             КНОПКИ ДЕЙСТВИЙ
+             КНОПКИ
              ============================================================ -->
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
 
-            <!-- Назад к списку -->
             <a href="{% url 'shopapp:products_list' %}" class="btn btn-primary">
                 ← Назад к списку
             </a>
 
-            <!-- КУПИТЬ (новая кнопка) -->
             {% if user.is_authenticated %}
                 <a href="{% url 'shopapp:order_create' %}?product={{ product.pk }}"
                    class="btn btn-success">
@@ -52,7 +81,6 @@
                 </a>
             {% endif %}
 
-            <!-- Редактировать (только автор или суперпользователь) -->
             {% if user.is_superuser or product.created_by == user and perms.shopapp.change_product %}
                 <a href="{% url 'shopapp:product_update' pk=product.pk %}"
                    class="btn btn-warning">
@@ -60,7 +88,6 @@
                 </a>
             {% endif %}
 
-            <!-- Архивировать -->
             <a href="{% url 'shopapp:product_delete' pk=product.pk %}"
                class="btn btn-danger">
                 🗑️ Архивировать
@@ -70,7 +97,7 @@
     </div>
 
     <!-- ============================================================
-         ГАЛЕРЕЯ ДОПОЛНИТЕЛЬНЫХ ИЗОБРАЖЕНИЙ
+         ГАЛЕРЕЯ
          ============================================================ -->
     <div class="card">
         <h2>🖼️ Галерея</h2>

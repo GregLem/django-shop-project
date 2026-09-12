@@ -3,44 +3,70 @@
 {% block title %}Товары{% endblock %}
 
 {% block body %}
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h1>📦 Товары</h1>
-            {% if perms.shopapp.add_product %}
-                <a href="{% url 'shopapp:create_product' %}" class="btn btn-success">➕ Создать товар</a>
-            {% endif %}
-        </div>
-
-        {% if products %}
-            {% for product in products %}
-                <div class="card" style="display: flex; gap: 20px; align-items: center;">
-                    {% if product.preview %}
-                        <img src="{{ product.preview.url }}" alt="{{ product.name }}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;">
-                    {% else %}
-                        <div style="width: 120px; height: 120px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            📦
-                        </div>
-                    {% endif %}
-
-                    <div style="flex: 1;">
-                        <h2 style="margin: 0;">
-                            <a href="{% url 'shopapp:product_details' pk=product.pk %}" style="color: #1a1a2e; text-decoration: none;">
-                                {{ product.name }}
-                            </a>
-                        </h2>
-                        <p style="margin: 8px 0;">💰 <strong>{{ product.price }} ₽</strong></p>
-                        {% if product.discount %}
-                            <p style="color: #dc3545;">🔥 Скидка: {{ product.discount }}%</p>
-                        {% endif %}
-                    </div>
-
-                    <a href="{% url 'shopapp:product_details' pk=product.pk %}" class="btn btn-primary">
-                        Подробнее →
-                    </a>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>Товаров пока нет.</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>📦 Товары</h1>
+        {% if perms.shopapp.add_product %}
+            <a href="{% url 'shopapp:create_product' %}" class="btn btn-success">
+                ➕ Создать товар
+            </a>
         {% endif %}
     </div>
+
+    {% for product in products %}
+        <div class="card" style="display: flex; gap: 20px; align-items: center;">
+            {% if product.preview %}
+                <img src="{{ product.preview.url }}" alt="{{ product.name }}"
+                     style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;">
+            {% else %}
+                <div style="width: 120px; height: 120px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    📦
+                </div>
+            {% endif %}
+
+            <div style="flex: 1;">
+                <h2 style="margin: 0;">
+                    <a href="{% url 'shopapp:product_details' pk=product.pk %}"
+                       style="color: #1a1a2e; text-decoration: none;">
+                        {{ product.name }}
+                    </a>
+                </h2>
+
+                <!-- Продавец -->
+                {% if product.created_by %}
+                    <div style="display: flex; align-items: center; gap: 8px; margin: 8px 0;">
+                        {% if product.created_by.profile.avatar %}
+                            <img src="{{ product.created_by.profile.avatar.url }}"
+                                 alt="{{ product.created_by.username }}"
+                                 style="width: 25px; height: 25px; border-radius: 50%; object-fit: cover;">
+                        {% endif %}
+                        <a href="{% url 'myaut:user_profile' pk=product.created_by.pk %}"
+                           style="color: #888; text-decoration: none; font-size: 14px;">
+                            {{ product.created_by.username }}
+                        </a>
+                    </div>
+                {% endif %}
+
+                <p style="margin: 8px 0;">💰 <strong>{{ product.price }} ₽</strong></p>
+                {% if product.discount %}
+                    <p style="color: #dc3545;">🔥 Скидка: {{ product.discount }}%</p>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a href="{% url 'shopapp:product_details' pk=product.pk %}" class="btn btn-primary">
+                    Подробнее
+                </a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'shopapp:order_create' %}?product={{ product.pk }}"
+                       class="btn btn-success">
+                        🛒 Купить
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="card">
+            <p>Товаров пока нет.</p>
+        </div>
+    {% endfor %}
 {% endblock %}

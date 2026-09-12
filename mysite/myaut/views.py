@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.views import View
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-
+from shopapp.models import Product
 from .models import Profile
 from .forms import ProfileForm
 
@@ -105,11 +105,16 @@ class UserProfileView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        profile, created = Profile.objects.get_or_create(user=self.object)  # ← get_or_create
+        profile, created = Profile.objects.get_or_create(user=self.object)
         context["profile"] = profile
         context["can_edit"] = (
             self.request.user.is_staff or
             self.request.user == self.object
+        )
+        # Товары этого продавца
+        context["user_products"] = Product.objects.filter(
+            created_by=self.object,
+            archived=False
         )
         return context
 

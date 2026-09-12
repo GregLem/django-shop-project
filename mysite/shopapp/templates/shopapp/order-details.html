@@ -1,36 +1,83 @@
 {% extends "shopapp/base.html" %}
 
-{% block title %}Заказ №{{ order.pk }}{% endblock %}
+{% block title %}
+    Заказ №{{ order.pk }}
+{% endblock %}
 
 {% block body %}
+
     <div class="card">
         <h1>📋 Заказ №{{ order.pk }}</h1>
 
+        <!-- ============================================================
+             БЛОК ПОКУПАТЕЛЯ (аватарка + имя)
+             ============================================================ -->
+        <div style="display: flex; align-items: center; gap: 15px; margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+
+            {% if order.user.profile.avatar %}
+                <img
+                    src="{{ order.user.profile.avatar.url }}"
+                    alt="{{ order.user.username }}"
+                    style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 3px solid #0f3460;"
+                >
+            {% else %}
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 3px solid #0f3460;">
+                    👤
+                </div>
+            {% endif %}
+
+            <div>
+                <p style="margin: 0; font-size: 13px; color: #888;">Покупатель:</p>
+                <a href="{% url 'myaut:user_profile' pk=order.user.pk %}"
+                   style="color: #0f3460; text-decoration: none; font-weight: 600; font-size: 18px;">
+                    {{ order.user.username }}
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Информация о заказе -->
         <div style="margin: 20px 0;">
-            <p><strong>Пользователь:</strong> {{ order.user.username }}</p>
-            <p><strong>Промокод:</strong> {{ order.promocode|default:"Не указан" }}</p>
             <p><strong>Адрес доставки:</strong> {{ order.delivery_address|default:"Не указан" }}</p>
+            <p><strong>Промокод:</strong> {{ order.promocode|default:"Не указан" }}</p>
             <p><strong>Дата:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
         </div>
 
+        <!-- ============================================================
+             ТОВАРЫ В ЗАКАЗЕ
+             ============================================================ -->
         <h2>📦 Товары в заказе</h2>
         <ul>
             {% for product in order.products.all %}
-                <li>
+                <li style="display: flex; justify-content: space-between; align-items: center;">
                     <a href="{% url 'shopapp:product_details' pk=product.pk %}">
-                        {{ product.name }}
+                        <strong>{{ product.name }}</strong>
                     </a>
-                    — {{ product.price }} ₽
+                    <span>{{ product.price }} ₽</span>
                 </li>
             {% empty %}
                 <li>Товаров нет</li>
             {% endfor %}
         </ul>
 
+        <!-- ============================================================
+             КНОПКИ
+             ============================================================ -->
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
-            <a href="{% url 'shopapp:order_list' %}" class="btn btn-primary">← Назад к списку</a>
-            <a href="{% url 'shopapp:order_update' pk=order.pk %}" class="btn btn-warning">✏️ Редактировать</a>
-            <a href="{% url 'shopapp:order_delete' pk=order.pk %}" class="btn btn-danger">🗑️ Удалить</a>
+            <a href="{% url 'shopapp:order_list' %}" class="btn btn-primary">
+                ← Назад к списку
+            </a>
+
+            <a href="{% url 'shopapp:order_update' pk=order.pk %}"
+               class="btn btn-warning">
+                ✏️ Редактировать
+            </a>
+
+            <a href="{% url 'shopapp:order_delete' pk=order.pk %}"
+               class="btn btn-danger">
+                🗑️ Удалить
+            </a>
         </div>
     </div>
+
 {% endblock %}

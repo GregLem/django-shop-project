@@ -3,32 +3,76 @@
 {% block title %}Профиль {{ user.username }}{% endblock %}
 
 {% block body %}
+
+    <!-- ============================================================
+         КАРТОЧКА ПРОФИЛЯ
+         ============================================================ -->
     <div class="card">
         <h1>👤 {{ user.username }}</h1>
 
         <div style="display: flex; gap: 20px; align-items: flex-start; margin: 20px 0;">
+
+            <!-- Аватарка -->
             {% if profile.avatar %}
                 <img src="{{ profile.avatar.url }}" alt="Avatar" class="avatar">
             {% else %}
-                <div style="width: 100px; height: 100px; background: #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px;">
+                <div style="width: 100px; height: 100px; background: #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; border: 3px solid #0f3460;">
                     👤
                 </div>
             {% endif %}
 
+            <!-- Информация -->
             <div>
                 <p><strong>Email:</strong> {{ user.email|default:"Не указан" }}</p>
                 <p><strong>Bio:</strong> {{ profile.bio|default:"Не указано" }}</p>
             </div>
         </div>
 
+        <!-- Кнопки -->
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="{% url 'myaut:users_list' %}" class="btn btn-primary">← Назад к списку</a>
+            <a href="{% url 'myaut:users_list' %}" class="btn btn-primary">
+                ← Назад к списку
+            </a>
 
             {% if can_edit %}
-                <a href="{% url 'myaut:user_profile_update' pk=user.pk %}" class="btn btn-warning">
+                <a href="{% url 'myaut:user_profile_update' pk=user.pk %}"
+                   class="btn btn-warning">
                     ✏️ Редактировать профиль
                 </a>
             {% endif %}
         </div>
     </div>
+
+    <!-- ============================================================
+         ТОВАРЫ ПРОДАВЦА
+         ============================================================ -->
+    {% if user_products %}
+        <div class="card">
+            <h2>🛍️ Товары продавца ({{ user_products.count }})</h2>
+
+            <div class="product-grid">
+                {% for product in user_products %}
+                    <div class="product-card">
+                        <div class="product-image">
+                            {% if product.preview %}
+                                <img src="{{ product.preview.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="product-placeholder">📦</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-info">
+                            <h3>{{ product.name }}</h3>
+                            <p class="product-price">{{ product.price }} ₽</p>
+                            <a href="{% url 'shopapp:product_details' pk=product.pk %}"
+                               class="btn btn-primary product-button">
+                                Подробнее →
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
 {% endblock %}
