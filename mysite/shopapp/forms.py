@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import Group
 
-from .models import Order, Product  # ← добавили Order
+from .models import Order, Product 
 
 
 class MultipleFileInput(forms.ClearableFileInput):
