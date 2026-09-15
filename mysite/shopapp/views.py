@@ -58,7 +58,13 @@ from .models import Order, Product, ProductImage
 # ГРУППЫ
 # ============================================================
 
-class GroupListView(View):
+class GroupListView(UserPassesTestMixin, View):
+    def test_func(self):
+        user = self.request.user
+        return user.is_authenticated and (
+            user.is_superuser or user.is_staff
+        )
+
     def get(self, request: HttpRequest) -> HttpResponse:
         context = {
             "form": GroupForm(),
@@ -133,8 +139,20 @@ class ProductCreateView(UserPassesTestMixin, CreateView):
         return self.request.user.has_perm("shopapp.add_product")
 
     def form_valid(self, form):
+        # Запоминаем автора товара
         form.instance.created_by = self.request.user
-        return super().form_valid(form)
+
+        # Сначала сохраняем сам Product
+        response = super().form_valid(form)
+
+        # Затем сохраняем дополнительные изображения
+        for image in form.files.getlist("images"):
+            ProductImage.objects.create(
+                product=self.object,
+                image=image,
+            )
+
+        return response
 
 
 class ProductUpdateView(UserPassesTestMixin, UpdateView):
@@ -169,16 +187,31 @@ class ProductUpdateView(UserPassesTestMixin, UpdateView):
         )
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(UserPassesTestMixin, DeleteView):
     model = Product
     template_name = "shopapp/product_confirm_delete.html"
     success_url = reverse_lazy("shopapp:products_list")
 
+    def test_func(self):
+        product = self.get_object()
+        user = self.request.user
+
+        return (
+            user.is_superuser
+            or (
+                user.has_perm("shopapp.delete_product")
+                and product.created_by == user
+            )
+        )
+
     def form_valid(self, form):
         success_url = self.get_success_url()
 
+        # Мягкое удаление:
+        # товар не удаляется из базы данных,
+        # а только помечается как архивный.
         self.object.archived = True
-        self.object.save()
+        self.object.save(update_fields=["archived"])
 
         return HttpResponseRedirect(success_url)
 
@@ -242,45 +275,38 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 class OrderCreateView(LoginRequiredMixin, CreateView):
     """
     Создание заказа.
-    
-    Если в URL передан ?product=<id>, то поле products
-    автоматически заполняется выбранным товаром.
+
+    Пользователь должен быть авторизован.
+    Владелец заказа определяется автоматически
+    по request.user.
     """
+
     model = Order
-    form_class = OrderForm  # ← используем свою форму
-    template_name = "shopapp/order_create.html"
-    success_url = reverse_lazy("shopapp:order_list")
+    form_class = OrderForm
+    template_name = "shopapp/order_form.html"
 
     def get_initial(self):
         initial = super().get_initial()
 
-        # Текущий пользователь
-        if self.request.user.is_authenticated:
-            initial["user"] = self.request.user
-
-        # Товар из GET-параметра
+        # Если пользователь пришёл со страницы товара
+        # с параметром ?product=ID,
+        # автоматически выбираем этот товар.
         product_id = self.request.GET.get("product")
+
         if product_id:
             initial["products"] = [product_id]
 
         return initial
 
+    def form_valid(self, form):
+        # Пользователь не выбирает владельца заказа
+        # самостоятельно.
+        # Владелец определяется сервером.
+        form.instance.user = self.request.user
 
-class OrderUpdateView(UpdateView):
-    model = Order
-    fields = (
-        "delivery_address",
-        "promocode",
-        "user",
-        "products",
-    )
-    template_name = "shopapp/order_update.html"
+        return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse(
-            "shopapp:order_details",
-            kwargs={"pk": self.object.pk},
-        )
+
 
 
 class OrderDeleteView(UserPassesTestMixin, DeleteView):
@@ -292,7 +318,11 @@ class OrderDeleteView(UserPassesTestMixin, DeleteView):
         order = self.get_object()
         user = self.request.user
 
-        return user.is_superuser or user.is_staff or order.user == user
+        return (
+            user.is_superuser
+            or user.is_staff
+            or order.user == user
+        )
 
 
 # ============================================================
@@ -352,4 +382,35 @@ class OrdersDataExportView(View):
 
         return JsonResponse(
             {"orders": orders_data}
+        )
+
+
+class OrderUpdateView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    UpdateView,
+):
+    model = Order
+    fields = (
+        "delivery_address",
+        "promocode",
+        # "user",
+        "products",
+    )
+    template_name = "shopapp/order_update.html"
+
+    def test_func(self):
+        order = self.get_object()
+        user = self.request.user
+
+        return (
+            user.is_superuser
+            or user.is_staff
+            or order.user == user
+        )
+
+    def get_success_url(self):
+        return reverse(
+            "shopapp:order_details",
+            kwargs={"pk": self.object.pk},
         )
