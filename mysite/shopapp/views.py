@@ -283,7 +283,8 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
 
     model = Order
     form_class = OrderForm
-    template_name = "shopapp/order_form.html"
+    template_name = "shopapp/order_create.html" 
+    success_url = reverse_lazy("shopapp:order_list")
 
     def get_initial(self):
         initial = super().get_initial()
