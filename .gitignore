@@ -38,3 +38,7 @@ staticfiles/
 # ==================================
 .DS_Store
 Thumbs.db
+
+# Загруженные файлы
+uploads/
+pics/
