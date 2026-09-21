@@ -40,10 +40,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'rest_framework',
+
     'shopapp',
     'requestdattapp',
     #'shopapp.apps.ShopappConfig',
-    'myaut'
+    'myaut',
+    'myapiapp',
 ]
 
 MIDDLEWARE = [
@@ -164,3 +168,8 @@ LOGIN_REDIRECT_URL = "myaut:about-me"
 
 # Куда отправлять после выхода
 LOGOUT_REDIRECT_URL = "myaut:login"
+
+REST_FRAMEWORK = {
+'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+'PAGE_SIZE': 10,
+}
