@@ -1,4 +1,7 @@
-from django.urls import path
+from django.urls import path, include
+
+from rest_framework.routers import DefaultRouter
+
 from .views import (
     ShopIndexView,
     GroupListView,
@@ -14,9 +17,13 @@ from .views import (
     ProductDeleteView,
     ProductsDataExportView,
     OrdersDataExportView,
+    ProductViewSet,
 )
 
 app_name = 'shopapp'
+
+routers = DefaultRouter()
+routers.register("products", ProductViewSet)
 
 urlpatterns = [
     path("", ShopIndexView.as_view(), name="index"),
@@ -39,5 +46,6 @@ urlpatterns = [
 
     # Группы
     path("groups/", GroupListView.as_view(), name="groups_list"),
-    
+
+    path("api/", include(routers.urls)),
 ]

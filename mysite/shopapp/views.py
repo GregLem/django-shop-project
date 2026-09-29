@@ -1,4 +1,5 @@
 from timeit import default_timer
+from django.contrib.auth.models import Group
 
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import (
@@ -25,9 +26,16 @@ from django.views.generic import (
     UpdateView,
 )
 
+from rest_framework.viewsets import ModelViewSet
+
 from .forms import GroupForm, ProductForm, OrderForm
 from .models import Order, Product, ProductImage
+from .serializers import ProductSerializer
 
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
 # ============================================================
 # ГЛАВНАЯ СТРАНИЦА
