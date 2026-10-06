@@ -27,15 +27,57 @@ from django.views.generic import (
 )
 
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .forms import GroupForm, ProductForm, OrderForm
 from .models import Order, Product, ProductImage
-from .serializers import ProductSerializer
+from .serializers import ProductSerializer, OrderSerializer
 
 
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = [
+        SearchFilter,
+        DjangoFilterBackend,
+        OrderingFilter,
+        ]
+    ordering_fields = [
+        "name",
+        "price",
+        "discount",
+        "created_at",
+    ]
+    search_fields = [
+        "name",
+        "description"
+    ]
+    filterset_fields = [
+        "name",
+        "description",
+        "price",
+        "discount",
+        "archived",
+    ]
+
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    filter_backends = [
+        DjangoFilterBackend,
+        OrderingFilter,
+    ]
+
+    filterset_fields = [
+        "user",
+        "promocode",
+    ]
+
+    ordering_fields = [
+        "created_at",
+    ]
 
 # ============================================================
 # ГЛАВНАЯ СТРАНИЦА
